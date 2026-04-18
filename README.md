@@ -48,6 +48,7 @@ The webcam stays accessible to Windows while WSL reads the output file via `/mnt
 
 - Windows 10/11
 - Python 3.12 with OpenCV (`pip install opencv-python-headless`)
+- ffmpeg (`winget install Gyan.FFmpeg`) for video recording
 - Logitech Brio 100 (or any DirectShow-compatible webcam)
 - WSL2 (optional, for reading output in Linux environments)
 
