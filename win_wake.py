@@ -12,7 +12,7 @@ import time
 import subprocess
 import speech_recognition as sr
 
-WAKE_WORD = "dosbot"
+WAKE_WORD = "image"
 ENERGY_THRESHOLD = 300
 SILENCE_FRAMES = 10
 CHUNK_SIZE = 1024

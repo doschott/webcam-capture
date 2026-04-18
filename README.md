@@ -51,7 +51,7 @@ Unregister-ScheduledTask -TaskName "DOSBot_WakeWord" -Confirm:$false
 1. Script streams audio from Brio 100 mic continuously
 2. Energy threshold detects when you're speaking
 3. After silence, audio is sent to Google Speech Recognition
-4. If "dosbot" is found in the text → triggers photo capture
+4. If "image" is found in the text → triggers photo capture
 5. Photo saves to `claw-webcam-capture\image\webcam_capture.jpg`
 
 ## Why This Approach
