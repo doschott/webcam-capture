@@ -1,78 +1,65 @@
-# Webcam Capture for WSL2
+# webcam-capture
 
-Capture images from a Logitech Brio 100 webcam using WSL2.
+Capture images from a webcam via Windows DirectShow using OpenCV. Designed for WSL2 environments where USBIP isochronous transfers fail.
 
-## ⚠️ Important: USBIP Does NOT Work for Video
+## Why
 
-WSL2's USBIP driver (`vhci_hcd`) cannot handle **isochronous USB transfers** — the high-bandwidth, low-latency transfers webcams use for video. You'll get placeholder images (~13KB with EXIF metadata, no real pixels) and `urb->status -104` errors in dmesg.
+WSL2's USBIP driver (`vhci_hcd`) cannot handle isochronous USB transfers — the high-bandwidth, low-latency transfers webcams use for video. This produces placeholder images (~13KB with EXIF metadata, no real pixels). This skill uses Windows DirectShow via OpenCV instead.
 
-## Working Method: Windows DirectShow
+## Setup
 
-Capture via Windows OpenCV, save to `C:\Users\Public\` (accessible from WSL).
+### Windows
 
-### Setup
-
-**Windows:**
 ```powershell
 winget install Python.Python.3.12
 python -m pip install opencv-python-headless
 ```
 
-**Copy the capture script:**
-```bash
-# The script is at /tmp/wincam.py
-cp /tmp/wincam.py /mnt/c/Users/Public/wincam.py
-```
-
-### Capture
+### Copy the capture script
 
 ```powershell
-# From PowerShell:
+# Download wincam.py to C:\Users\Public\
+```
+
+Or copy from this repo:
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/doschott/webcam-capture/main/wincam.py" -OutFile "C:\Users\Public\wincam.py"
+```
+
+## Usage
+
+```powershell
+# Capture (runs on Windows, saves to C:\Users\Public\)
 & 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\wincam.py'
 
 # From WSL, copy the result:
 cp /mnt/c/Users/Public/webcam_capture.jpg output.jpg
 ```
 
-### Windows Script (`wincam.py`)
-```python
-import cv2, os, sys
-O = r"C:\Users\Public\webcam_capture.jpg"
-c = cv2.VideoCapture(0, cv2.CAP_ANY)
-c.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
-c.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-c.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-if not c.isOpened(): print("ERROR"); sys.exit(1)
-r, f = c.read()
-c.release()
-if not r: print("ERROR"); sys.exit(1)
-cv2.imwrite(O, f)
-print("OK: %dx%d" % (f.shape[1], f.shape[0]))
-```
-
-## USBIP for Future Reference
-
-USBIP shows the device as "Shared" (not "Attached") while Windows uses it. To share with WSL:
-
-```powershell
-# In PowerShell as Admin:
-usbipd list  # Find the Brio 100 busid (4-1)
-usbipd bind --busid 4-1
-usbipd attach --wsl --busid 4-1   # Attaches to WSL (video won't work)
-usbipd detach --busid 4-1         # Returns to Windows
-```
-
-**Busids:**
-- Brio 100: 4-1 (046d:094c)
-- Realtek USB Audio: 4-5 (0db0:543d)
-
-## Architecture
+## How It Works
 
 ```
-Working: Windows DirectShow -> OpenCV -> C:\Users\Public\ -> /mnt/c/ -> WSL
-Broken:  Windows USB -> USBIP -> WSL vhci_hcd -> V4L2 -> ustreamer (isochronous fails)
+Windows DirectShow -> OpenCV -> C:\Users\Public\webcam_capture.jpg -> WSL -> file
 ```
 
-## Key Finding
+The webcam stays accessible to Windows while WSL reads the output file via `/mnt/c/`.
 
-The webcam light being "on" means the USB connection works (device enumeration, descriptors, control transfers all fine). But actual video data requires isochronous transfers, which WSL2's USBIP implementation cannot deliver reliably.
+## Requirements
+
+- Windows 10/11
+- Python 3.12 with OpenCV (`pip install opencv-python-headless`)
+- Logitech Brio 100 (or any DirectShow-compatible webcam)
+- WSL2 (optional, for reading output in Linux environments)
+
+## Capture Settings
+
+- Resolution: 640x480 (native, best quality)
+- Format: Camera's native YUYV mode
+- Auto-exposure: Enabled (discards first 5 frames to let exposure settle)
+- Output: C:\Users\Public\webcam_capture.jpg
+
+## Technical Notes
+
+- **USBIP does NOT work** for webcam video in WSL2. The `vhci_hcd` kernel module drops isochronous URBs (`urb->status -104`).
+- The webcam light being "on" means USB enumeration works, but actual video transfer requires isochronous transfers which fail silently over USBIP.
+- Windows DirectShow has no such limitation and captures reliably.

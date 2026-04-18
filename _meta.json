@@ -1,0 +1,27 @@
+{
+  "name": "webcam-capture",
+  "version": "1.0.0",
+  "description": "Capture images from a webcam via Windows DirectShow using OpenCV. Provides reliable snapshot capture for WSL2 environments where USBIP isochronous transfers fail.",
+  "author": "DOSBot (Daniel Schott)",
+  "license": "MIT",
+  "homepage": "https://github.com/doschott/webcam-capture",
+  "topics": ["webcam", "opencv", "windows", "directshow", "capture"],
+  "compatibility": ["Windows 10/11 with Python 3.12 + OpenCV", "WSL2"],
+  "minOpenClawVersion": "2026.1.0",
+  "tags": [
+    "webcam",
+    "opencv",
+    "windows-directshow",
+    "image-capture",
+    "photo"
+  ],
+  "shortDescription": "Capture webcam images via Windows DirectShow when USBIP fails in WSL2.",
+  "screenshots": [],
+  "features": [
+    "Windows DirectShow capture via OpenCV (reliable)",
+    "Saves to C:\\Users\\Public\\ accessible from WSL2",
+    "640x480 native resolution with auto-exposure",
+    "No USBIP isochronous transfer issues",
+    "Simple one-line capture command"
+  ]
+}
