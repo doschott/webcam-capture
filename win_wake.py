@@ -113,7 +113,7 @@ def main():
     print("=" * 50)
     print("DOSBot Wake Word Listener")
     print("Wake word: '%s'" % WAKE_WORD)
-    print("=" % 50)
+    print("=" * 50)
 
     p = pyaudio.PyAudio()
     brio_idx = find_brio_mic(p)
