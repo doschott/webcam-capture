@@ -11,13 +11,48 @@ Capture images, audio, and video from a webcam via Windows native APIs. Includes
 | **Video** | `win_video.py` | Recording | MP4 H.264 + AAC |
 | **Wake Word** | `win_wake.py` | Voice control | Listens for "DOSBot" |
 
-## Wake Word Listener
+## Wake Word Listener (Voice Control)
 
-Run `win_wake.py` and say "DOSBot" to trigger a photo capture automatically:
-- Uses Google Speech Recognition for STT (requires internet)
-- Energy-based speech detection
-- Minimal storage (only saves audio when speech detected)
-- Action log at `C:\Users\Public\wake_log.txt`
+**IMPORTANT:** This script must be running for DOSBot to listen for the wake word. It continuously streams audio from the mic. When you say "DOSBot", it takes a photo automatically.
+
+### Manual Start
+
+```powershell
+& 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\claw-webcam-capture\listener-jarvis\win_wake.py'
+```
+- Say "DOSBot" → takes a photo to `claw-webcam-capture\image\`
+- Uses Google Speech Recognition (requires internet)
+- Press Ctrl+C to stop listening
+- Action log at `C:\Users\Public\claw-webcam-capture\listener-jarvis\wake_log.txt`
+
+### Auto-Start with Windows Task Scheduler
+
+To have DOSBot listening automatically on startup:
+
+```powershell
+# Create scheduled task (runs at logon)
+$action = New-ScheduledTaskAction -Execute "C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe" -Argument "C:\Users\Public\claw-webcam-capture\listener-jarvis\win_wake.py" -WorkingDirectory "C:\Users\Public\claw-webcam-capture\listener-jarvis"
+$trigger = New-ScheduledTaskTrigger -AtLogOn
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+Register-ScheduledTask -TaskName "DOSBot_WakeWord" -Action $action -Trigger $trigger -Settings $settings -Description "DOSBot wake word listener"
+
+# Start manually:
+Start-ScheduledTask -TaskName "DOSBot_WakeWord"
+
+# Stop:
+Stop-ScheduledTask -TaskName "DOSBot_WakeWord" -ErrorAction SilentlyContinue
+
+# Remove:
+Unregister-ScheduledTask -TaskName "DOSBot_WakeWord" -Confirm:$false
+```
+
+### How It Works
+
+1. Script streams audio from Brio 100 mic continuously
+2. Energy threshold detects when you're speaking
+3. After silence, audio is sent to Google Speech Recognition
+4. If "dosbot" is found in the text → triggers photo capture
+5. Photo saves to `claw-webcam-capture\image\webcam_capture.jpg`
 
 ## Why This Approach
 
