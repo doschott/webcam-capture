@@ -1,6 +1,6 @@
 # webcam-capture
 
-Capture images, audio, and video from a webcam via Windows native APIs. Designed for WSL2 environments where USBIP isochronous transfers fail.
+Capture images, audio, and video from a webcam via Windows native APIs. Includes wake word listener for voice-activated photo capture. Designed for WSL2 environments where USBIP isochronous transfers fail.
 
 ## Features
 
@@ -9,6 +9,15 @@ Capture images, audio, and video from a webcam via Windows native APIs. Designed
 | **Image** | `wincam.py` | Snapshot | JPEG 640x480 |
 | **Audio** | `win_audio.py` | Recording | WAV 44.1kHz PCM mono |
 | **Video** | `win_video.py` | Recording | MP4 H.264 + AAC |
+| **Wake Word** | `win_wake.py` | Voice control | Listens for "DOSBot" |
+
+## Wake Word Listener
+
+Run `win_wake.py` and say "DOSBot" to trigger a photo capture automatically:
+- Uses Google Speech Recognition for STT (requires internet)
+- Energy-based speech detection
+- Minimal storage (only saves audio when speech detected)
+- Action log at `C:\Users\Public\wake_log.txt`
 
 ## Why This Approach
 
@@ -65,6 +74,6 @@ cp /mnt/c/Users/Public/video.mp4 output.mp4
 ## Requirements
 
 - Windows 10/11
-- Python 3.12 with OpenCV and PyAudio
+- Python 3.12 with OpenCV, PyAudio, and SpeechRecognition
 - ffmpeg (Gyan.FFmpeg) for video recording
 - Logitech Brio 100 (or any DirectShow-compatible webcam/mic)

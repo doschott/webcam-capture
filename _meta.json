@@ -21,6 +21,7 @@
     "Image capture: JPEG 640x480 via OpenCV DirectShow",
     "Audio recording: WAV 44.1kHz PCM via PyAudio/WASAPI",
     "Video recording: MP4 H.264+AAC via ffmpeg DirectShow",
+    "Wake word listener: voice-activated photo with 'DOSBot' trigger",
     "Saves to C:\\Users\\Public\\ accessible from WSL2",
     "No USBIP isochronous transfer issues",
     "Brio 100 webcam + mic in one device"
