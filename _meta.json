@@ -15,13 +15,14 @@
     "image-capture",
     "photo"
   ],
-  "shortDescription": "Capture webcam images via Windows DirectShow when USBIP fails in WSL2.",
+  "shortDescription": "Capture webcam images, audio, and video via Windows DirectShow/WASAPI when USBIP fails in WSL2.",
   "screenshots": [],
   "features": [
-    "Windows DirectShow capture via OpenCV (reliable)",
+    "Image capture: JPEG 640x480 via OpenCV DirectShow",
+    "Audio recording: WAV 44.1kHz PCM via PyAudio/WASAPI",
+    "Video recording: MP4 H.264+AAC via ffmpeg DirectShow",
     "Saves to C:\\Users\\Public\\ accessible from WSL2",
-    "640x480 native resolution with auto-exposure",
     "No USBIP isochronous transfer issues",
-    "Simple one-line capture command"
+    "Brio 100 webcam + mic in one device"
   ]
 }

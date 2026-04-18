@@ -1,10 +1,22 @@
 # webcam-capture
 
-Capture images from a webcam via Windows DirectShow using OpenCV. Designed for WSL2 environments where USBIP isochronous transfers fail.
+Capture images, audio, and video from a webcam via Windows native APIs. Designed for WSL2 environments where USBIP isochronous transfers fail.
 
-## Why
+## Features
 
-WSL2's USBIP driver (`vhci_hcd`) cannot handle isochronous USB transfers — the high-bandwidth, low-latency transfers webcams use for video. This produces placeholder images (~13KB with EXIF metadata, no real pixels). This skill uses Windows DirectShow via OpenCV instead.
+| Mode | Script | Output | Format |
+|------|--------|--------|--------|
+| **Image** | `wincam.py` | Snapshot | JPEG 640x480 |
+| **Audio** | `win_audio.py` | Recording | WAV 44.1kHz PCM mono |
+| **Video** | `win_video.py` | Recording | MP4 H.264 + AAC |
+
+## Why This Approach
+
+WSL2's USBIP driver (`vhci_hcd`) cannot handle isochronous USB transfers — the high-bandwidth, low-latency transfers webcams use for video and audio. USBIP produces placeholder images (~13KB with EXIF metadata, no real pixels). This skill uses Windows native APIs instead:
+
+- **Video/Audio**: DirectShow via ffmpeg
+- **Image**: DirectShow via OpenCV
+- **Audio only**: WASAPI via PyAudio
 
 ## Setup
 
@@ -12,55 +24,47 @@ WSL2's USBIP driver (`vhci_hcd`) cannot handle isochronous USB transfers — the
 
 ```powershell
 winget install Python.Python.3.12
-python -m pip install opencv-python-headless
+python -m pip install opencv-python-headless pyaudio
+winget install Gyan.FFmpeg
 ```
 
-### Copy the capture script
+### Copy the scripts
 
 ```powershell
-# Download wincam.py to C:\Users\Public\
-```
-
-Or copy from this repo:
-```powershell
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/doschott/webcam-capture/main/wincam.py" -OutFile "C:\Users\Public\wincam.py"
+# From WSL:
+cp webcam-capture/wincam.py /mnt/c/Users/Public/wincam.py
+cp webcam-capture/win_audio.py /mnt/c/Users/Public/win_audio.py
+cp webcam-capture/win_video.py /mnt/c/Users/Public/win_video.py
 ```
 
 ## Usage
 
 ```powershell
-# Capture (runs on Windows, saves to C:\Users\Public\)
+# Image capture
 & 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\wincam.py'
 
-# From WSL, copy the result:
+# Audio recording (5 seconds)
+& 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\win_audio.py'
+
+# Video recording with audio (5 seconds, or pass duration as arg)
+& 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\win_video.py' 10
+
+# From WSL, copy results:
 cp /mnt/c/Users/Public/webcam_capture.jpg output.jpg
+cp /mnt/c/Users/Public/audio_capture.wav output.wav
+cp /mnt/c/Users/Public/video.mp4 output.mp4
 ```
 
-## How It Works
+## Technical Details
 
-```
-Windows DirectShow -> OpenCV -> C:\Users\Public\webcam_capture.jpg -> WSL -> file
-```
-
-The webcam stays accessible to Windows while WSL reads the output file via `/mnt/c/`.
+- **Image**: 640x480 JPEG, native YUYV mode (not forced MJPG), 5-frame warmup for auto-exposure
+- **Audio**: Brio 100 mic as "Microphone (Brio 100)", 44.1kHz mono 16-bit PCM, ~88KB/s
+- **Video**: ffmpeg DirectShow, H.264 video + AAC audio, ~370KB/s
+- **Devices**: Uses Brio 100 webcam + built-in mic via DirectShow/WASAPI
 
 ## Requirements
 
 - Windows 10/11
-- Python 3.12 with OpenCV (`pip install opencv-python-headless`)
-- ffmpeg (`winget install Gyan.FFmpeg`) for video recording
-- Logitech Brio 100 (or any DirectShow-compatible webcam)
-- WSL2 (optional, for reading output in Linux environments)
-
-## Capture Settings
-
-- Resolution: 640x480 (native, best quality)
-- Format: Camera's native YUYV mode
-- Auto-exposure: Enabled (discards first 5 frames to let exposure settle)
-- Output: C:\Users\Public\webcam_capture.jpg
-
-## Technical Notes
-
-- **USBIP does NOT work** for webcam video in WSL2. The `vhci_hcd` kernel module drops isochronous URBs (`urb->status -104`).
-- The webcam light being "on" means USB enumeration works, but actual video transfer requires isochronous transfers which fail silently over USBIP.
-- Windows DirectShow has no such limitation and captures reliably.
+- Python 3.12 with OpenCV and PyAudio
+- ffmpeg (Gyan.FFmpeg) for video recording
+- Logitech Brio 100 (or any DirectShow-compatible webcam/mic)
