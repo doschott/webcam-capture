@@ -1,5 +1,5 @@
 """
-Wake Word Listener for DOSBot
+Wake Word Listener
 Streams audio from Brio 100 mic, detects speech, transcribes with Google Speech Recognition,
 and triggers photo capture when "DOSBot" is heard.
 """
@@ -24,7 +24,7 @@ BASE = r"C:\Users\Public\claw-webcam-capture"
 IMAGE_DIR = BASE + r"\image"
 AUDIO_DIR = BASE + r"\listener-jarvis"
 PYTHON = r"C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe"
-WINCAM = r"C:\Users\Public\claw-webcam-capture\wincam.py"
+WINCAM = r"C:\Users\Public\claw-webcam-capture\image\wincam.py"
 AUDIO_BUFFER = AUDIO_DIR + r"\wake_audio.wav"
 LOG_FILE = AUDIO_DIR + r"\wake_log.txt"
 
@@ -61,10 +61,7 @@ def transcribe(audio_path):
 def trigger_action():
     print("  WAKE WORD DETECTED! Taking photo...")
     try:
-        # Update WINCAM path to new location
-        import shutil
-        shutil.copy(WINCAM, IMAGE_DIR + r"\wincam.py")
-        subprocess.run([PYTHON, IMAGE_DIR + r"\wincam.py"], check=True)
+        subprocess.run([PYTHON, WINCAM], check=True)
         print("  Photo captured!")
         with open(LOG_FILE, "a") as f:
             f.write("%s - WAKE: photo taken\n" % time.strftime('%Y-%m-%d %H:%M:%S'))
@@ -111,7 +108,7 @@ def audio_callback(in_data, frame_count, time_info, status):
 
 def main():
     print("=" * 50)
-    print("DOSBot Wake Word Listener")
+    print("Wake Word Listener")
     print("Wake word: '%s'" % WAKE_WORD)
     print("=" * 50)
 
@@ -135,7 +132,7 @@ def main():
     )
 
     print("Listening... (Ctrl+C to stop)")
-    print("Say 'DOSBot' to trigger photo capture")
+    print("Say '%s' to trigger photo capture" % WAKE_WORD)
 
     stream.start_stream()
     try:
