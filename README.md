@@ -33,35 +33,44 @@ WSL2's USBIP driver (`vhci_hcd`) cannot handle isochronous USB transfers — the
 
 ```powershell
 winget install Python.Python.3.12
-python -m pip install opencv-python-headless pyaudio
+python -m pip install opencv-python-headless pyaudio speech_recognition
 winget install Gyan.FFmpeg
+
+# Create folder structure:
+New-Item -ItemType Directory -Path 'C:\Users\Public\claw-webcam-capture\image' -Force
+New-Item -ItemType Directory -Path 'C:\Users\Public\claw-webcam-capture\audio' -Force
+New-Item -ItemType Directory -Path 'C:\Users\Public\claw-webcam-capture\video' -Force
+New-Item -ItemType Directory -Path 'C:\Users\Public\claw-webcam-capture\listener-jarvis' -Force
 ```
 
 ### Copy the scripts
 
-```powershell
-# From WSL:
-cp webcam-capture/wincam.py /mnt/c/Users/Public/wincam.py
-cp webcam-capture/win_audio.py /mnt/c/Users/Public/win_audio.py
-cp webcam-capture/win_video.py /mnt/c/Users/Public/win_video.py
+```bash
+cp webcam-capture/wincam.py /mnt/c/Users/Public/claw-webcam-capture/image/wincam.py
+cp webcam-capture/win_audio.py /mnt/c/Users/Public/claw-webcam-capture/audio/win_audio.py
+cp webcam-capture/win_video.py /mnt/c/Users/Public/claw-webcam-capture/video/win_video.py
+cp webcam-capture/win_wake.py /mnt/c/Users/Public/claw-webcam-capture/listener-jarvis/win_wake.py
 ```
 
 ## Usage
 
 ```powershell
 # Image capture
-& 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\wincam.py'
+& 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\claw-webcam-capture\image\wincam.py'
 
 # Audio recording (5 seconds)
-& 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\win_audio.py'
+& 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\claw-webcam-capture\audio\win_audio.py'
 
 # Video recording with audio (5 seconds, or pass duration as arg)
-& 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\win_video.py' 10
+& 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\claw-webcam-capture\video\win_video.py' 10
+
+# Wake word listener
+& 'C:\Users\doschott\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\Public\claw-webcam-capture\listener-jarvis\win_wake.py'
 
 # From WSL, copy results:
-cp /mnt/c/Users/Public/webcam_capture.jpg output.jpg
-cp /mnt/c/Users/Public/audio_capture.wav output.wav
-cp /mnt/c/Users/Public/video.mp4 output.mp4
+cp /mnt/c/Users/Public/claw-webcam-capture/image/webcam_capture.jpg output.jpg
+cp /mnt/c/Users/Public/claw-webcam-capture/audio/audio_capture.wav output.wav
+cp /mnt/c/Users/Public/claw-webcam-capture/video/video.mp4 output.mp4
 ```
 
 ## Technical Details

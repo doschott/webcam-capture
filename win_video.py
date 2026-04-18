@@ -1,6 +1,5 @@
 import subprocess, os, sys
 
-# Find ffmpeg
 ffmpeg_paths = [
     r"C:\Users\doschott\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.1-full_build\bin\ffmpeg.exe",
     r"C:\Program Files\ffmpeg\bin\ffmpeg.exe",
@@ -21,7 +20,7 @@ if FFMPEG is None:
     print("ERROR: ffmpeg not found. Install: winget install Gyan.FFmpeg")
     sys.exit(1)
 
-OUTPUT = r"C:\Users\Public\video.mp4"
+OUTPUT = r"C:\Users\Public\claw-webcam-capture\video\video.mp4"
 DURATION = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 
 cmd = [
@@ -35,11 +34,11 @@ cmd = [
     "-y", OUTPUT
 ]
 
-print(f"Recording {DURATION}s...")
+print("Recording %ds..." % DURATION)
 r = subprocess.run(cmd, capture_output=True, text=True)
 if r.returncode != 0:
     print("ERROR:", r.stderr[-500:] if r.stderr else "Unknown")
     sys.exit(1)
 
 size = os.path.getsize(OUTPUT)
-print(f"OK: {size} bytes, {DURATION}s")
+print("OK: %s (%d bytes, %ds)" % (OUTPUT, size, DURATION))
